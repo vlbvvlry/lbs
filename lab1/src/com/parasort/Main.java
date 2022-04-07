@@ -1,6 +1,6 @@
 package com.parasort;
 
-import java.util.Arrays;
+//import java.util.Arrays;
 
 public class Main {   
 
@@ -67,12 +67,6 @@ public class Main {
         return time/1000000;
     }
 
-
-
-
-
-
-
     public static void main(String args[]) {
 
         int _arr25k[] = new int[25000];
@@ -101,8 +95,5 @@ public class Main {
         System.out.print("\nInsertionSort\n\t1: " + time21 + "\n\t2: " + time22 + "\n\t4: " + time23 + "\n\t8: " + time24 + "\n\t(ms)");
         System.out.print("\nCombSort\n\t1: " + time31 + "\n\t2: " + time32 + "\n\t4: " + time33 + "\n\t8: " + time34 + "\n\t(ms)");
     }
-
-
-
-    
+ 
 }
