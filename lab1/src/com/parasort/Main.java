@@ -14,9 +14,15 @@ public class Main {
         _array[i-1] = tmp;
     }
     public static void InsertionSort(int _array[]) {
-        for(int i = 1; i < _array.length; i++)
-            for(int j = i; (j > 0) && (_array[j-1] > _array[j]); j--)
-                Swap(_array,j);
+         for (int i = 1; i < _array.length; i++) {
+            int current = _array[i];
+            int j = i - 1;
+            while(j >= 0 && current < _array[j]) {
+                _array[j+1] = _array[j];
+                j--;
+            }
+            _array[j+1] = current;
+        }
     }
     public static void ShakerSort(int _array[]) {
         int L, R;

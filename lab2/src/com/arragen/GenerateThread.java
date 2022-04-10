@@ -24,12 +24,12 @@ public class GenerateThread extends Thread {
         }
     }
 
-    synchronized public static String gen(String str, int array_i, int len, int numThread) {
+    synchronized public static String gen(String str, int array[], int len, int numThread) {
         if(i < len) {
-            array_i = (int)(Math.random()*len);
+            array[i] = (int)(Math.random()*len);
             str = String.join("\n", str, Integer.toString(numThread));
             str = String.join(" ", str, Integer.toString(i));
-            str = String.join(" ", str, Integer.toString(array_i));
+            str = String.join(" ", str, Integer.toString(array[i]));
             i++;
         }
 
@@ -37,15 +37,20 @@ public class GenerateThread extends Thread {
     }
 
     public void run() {
+
+        long time = System.nanoTime();
         while(i < array.length) {
-            str = String.join("", "", gen(str, array[i], array.length, numThread));
+            str = String.join("", "", gen(str, array, array.length, numThread));
         }
+        time = System.nanoTime() - time;
 
         try{
             Thread.sleep(numThread*200);
         } catch(Exception e) {
             System.out.println(e.getMessage());
         }
+
+        System.out.println(" " + numThread + "th" + " thread -> " + time/1000000 + " (ms)");
         writeToFile(str, fosGenFile);
     }
 
