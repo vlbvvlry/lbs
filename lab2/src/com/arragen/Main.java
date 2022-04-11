@@ -14,43 +14,56 @@ public class Main {
         }
     }
 
-    public static int[] sortTest(int array[], int threadCount, int sort) {
-        SortingThread st[] = new SortingThread[threadCount];
+    public static int[] sortTest(int array[], int threadsCount, int sort) {
+        SortingThread st[] = new SortingThread[threadsCount];
         int _array[] = array.clone();
-        for(int i = 0; i < threadCount; i++) {
+        long time = System.nanoTime();
+        for(int i = 0; i < threadsCount; i++) {
             st[i] = new SortingThread(_array, sort);
             st[i].start();
         }
 
         try{
-            st[threadCount - 1].join();
+            st[threadsCount - 1].join();
         } catch(Exception e) {
             System.out.println(e.getMessage());
         }
+        time = System.nanoTime() - time;
+        System.out.println("Sort " + sort + " -> " + time/1000000);
 
         return _array;
     }
 
-    public static void genTestWithoutSyn(int array[], int threadCount, FileOutputStream fos) {
-        //
+    public static void genTestWithoutSyn(int array[], int threadsCount, FileOutputStream fos) {
+        GenerateThreadWithoutSyn gtws[] = new GenerateThreadWithoutSyn[threadsCount];
+        for(int i = 0; i < threadsCount; i++) {
+            gtws[i] = new GenerateThreadWithoutSyn(array, fos, i+1, threadsCount);
+            gtws[i].start();
+        }
+
+        try {
+            gtws[threadsCount - 1].join();
+        } catch(Exception e) {
+            System.out.println(e.getMessage());
+        }
     }
 
-    public static void genTestSyn(int array[], int threadCount, FileOutputStream fos) {
-        GenerateThread gt[] = new GenerateThread[threadCount];
-        for(int i = 0; i < threadCount; i++) {
+    public static void genTestSyn(int array[], int threadsCount, FileOutputStream fos) {
+        GenerateThread gt[] = new GenerateThread[threadsCount];
+        for(int i = 0; i < threadsCount; i++) {
             gt[i] = new GenerateThread(array, fos, i+1);
             gt[i].start();
         }
 
         try {
-            gt[threadCount - 1].join();
+            gt[threadsCount - 1].join();
         } catch(Exception e) {
             System.out.println(e.getMessage());
         }
     }
 
     public static void main(String args[]) {
-        int threadsCount = 1;
+        int threadsCount = 4;
         int array[] = new int[1000];
         File genFile = new File("result.txt");
         FileOutputStream fosGenFile = null;
@@ -63,22 +76,17 @@ public class Main {
             System.out.println(e.getMessage());
         }
 
-        genTestSyn(array, threadsCount, fosGenFile);
+        //genTestSyn(array, threadsCount, fosGenFile);
         genTestWithoutSyn(array, threadsCount, fosGenFile);
 
 
-        try {
-            
+        try {        
             fosGenFile.write("\n\nShakerSort".getBytes());
             writeToFile(sortTest(array, threadsCount, 1), fosGenFile);
             fosGenFile.write("\n\nInsertionSort".getBytes());
             writeToFile(sortTest(array, threadsCount, 2), fosGenFile);
             fosGenFile.write("\n\nCombSort".getBytes());       
             writeToFile(sortTest(array, threadsCount, 3), fosGenFile);
-
-            // Arrays.sort(array);
-            // fosGenFile.write("\n\nMAIN".getBytes());       
-            // writeToFile(array, fosGenFile);
         } catch(IOException e) {
             System.out.println(e.getMessage());
         }
