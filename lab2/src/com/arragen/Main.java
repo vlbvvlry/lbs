@@ -19,7 +19,7 @@ public class Main {
         int _array[] = array.clone();
         long time = System.nanoTime();
         for(int i = 0; i < threadsCount; i++) {
-            st[i] = new SortingThread(_array, sort);
+            st[i] = new SortingThread(_array, sort, i);
             st[i].start();
         }
 
@@ -64,7 +64,7 @@ public class Main {
 
     public static void main(String args[]) {
         int threadsCount = 4;
-        int array[] = new int[1000];
+        int array[] = new int[100];
         File genFile = new File("result.txt");
         FileOutputStream fosGenFile = null;
 
@@ -76,8 +76,8 @@ public class Main {
             System.out.println(e.getMessage());
         }
 
-        //genTestSyn(array, threadsCount, fosGenFile);
-        genTestWithoutSyn(array, threadsCount, fosGenFile);
+        genTestSyn(array, threadsCount, fosGenFile);
+        //genTestWithoutSyn(array, threadsCount, fosGenFile);
 
 
         try {        
