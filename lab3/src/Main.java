@@ -3,11 +3,14 @@ import java.util.*;
 
 public class Main {
 
-    private static final int N = 30;
+    public static final int N = 12;
+    public static final int threadCount = 4;
+    public static int[] vector = new int[N];
+    public static int[][] matrix = new int[N][N];
+    public static int[] result = new int[N];
+
     private static File f = new File("result.txt");
-    private static FileOutputStream fos = null;
-    private static int[] vector = new int[N];
-    private static int[][] matrix = new int[N][N]; 
+    private static FileOutputStream fos = null; 
 
     private static void creatingFileAttributes() {
         try {
@@ -41,15 +44,26 @@ public class Main {
                 for(int j = 0; j < N; j++) {
                     fos.write(String.format("%3d ", matrix[i][j]).getBytes());
                 }
-            }
+            } 
+            fos.write("\n\nResult:\n".getBytes());
+            fos.write(Arrays.toString(result).getBytes()); 
         } catch(IOException e) {
             System.out.println(e.getMessage());
+        }
+    }
+
+    private static void multiplying() {
+        MultiplyingThread[] mt = new MultiplyingThread[threadCount];
+        for(int i = 0; i < threadCount; i++) {
+            mt[i] = new MultiplyingThread(i+1);
+            mt[i].start();
         }
     }
 
     public static void main(String[] args) {
         creatingFileAttributes();
         filling();
+        multiplying();
         writingToFile();
     }
 
