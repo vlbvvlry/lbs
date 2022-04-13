@@ -3,18 +3,21 @@ import java.util.*;
 
 public class Main {
 
-    public static final int N = 12;
-    public static final int threadCount = 4;
+    public static final int N = 2000;
+    public static final int threadCount = 1;
     public static int[] vector = new int[N];
     public static int[][] matrix = new int[N][N];
     public static int[] result = new int[N];
 
-    private static File f = new File("result.txt");
-    private static FileOutputStream fos = null; 
+    private static final File f = new File("result.txt");
+    private static FileOutputStream fos = null;
+    private static long time;
 
     private static void creatingFileAttributes() {
         try {
-            f.createNewFile();
+            if(f.createNewFile()) {
+                System.out.println("File created.");
+            }
             fos = new FileOutputStream(f, true);
             (new FileOutputStream(f, false)).write("".getBytes());
         } catch(IOException e) {
@@ -46,7 +49,8 @@ public class Main {
                 }
             } 
             fos.write("\n\nResult:\n".getBytes());
-            fos.write(Arrays.toString(result).getBytes()); 
+            fos.write(Arrays.toString(result).getBytes());
+            fos.write(("\n\nTime: " + time + " ms").getBytes());
         } catch(IOException e) {
             System.out.println(e.getMessage());
         }
@@ -58,12 +62,23 @@ public class Main {
             mt[i] = new MultiplyingThread(i+1);
             mt[i].start();
         }
+        try {
+            mt[threadCount - 1].join();
+        } catch(Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    private static void run() {
+        time = System.nanoTime();
+        multiplying();
+        time = (System.nanoTime() - time)/1000000;
     }
 
     public static void main(String[] args) {
         creatingFileAttributes();
         filling();
-        multiplying();
+        run();
         writingToFile();
     }
 
