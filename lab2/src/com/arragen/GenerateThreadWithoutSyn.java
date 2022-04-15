@@ -30,10 +30,10 @@ public class GenerateThreadWithoutSyn extends Thread {
 
         long time = System.nanoTime();
         for(int i = (array.length/threadsCount*(numThread-1)); i < (array.length/threadsCount*numThread); i++) {
-            array[i] = (int)(Math.random()*array.length);
-            str = String.join("\n", str, Integer.toString(numThread));
-            str = String.join(" ", str, Integer.toString(i));
-            str = String.join(" ", str, Integer.toString(array[i]));
+            array[i] = (int)(Math.random()*1000);
+            str = String.join("(", str, Integer.toString(numThread));
+            str = String.join(" - ", str, String.format("%d", i));
+            str = String.join(" - ", str, (String.format("%3d", array[i]) + ") "));
         }
         time = System.nanoTime() - time;
 

@@ -102,7 +102,7 @@ public class Main {
     public static void main(String[] args) {
         creatingFileAttributes();
 
-        int[] _arr25k = new int[5000];
+        int[] _arr25k = new int[50000];
         Filling(_arr25k, _arr25k.length);
         printToFile("Source Array: \n" + Arrays.toString(_arr25k));
 

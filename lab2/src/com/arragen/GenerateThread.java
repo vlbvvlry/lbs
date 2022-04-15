@@ -5,12 +5,12 @@ import java.io.*;
 public class GenerateThread extends Thread {
 
     static int i = 0;
-    int array[];
+    int[] array;
     FileOutputStream fosGenFile;
     int numThread;
     String str = "";
 
-    GenerateThread(int array[], FileOutputStream fosGenFile, int numThread) {
+    GenerateThread(int[] array, FileOutputStream fosGenFile, int numThread) {
         this.array = array;
         this.fosGenFile = fosGenFile;
         this.numThread = numThread;
@@ -24,12 +24,12 @@ public class GenerateThread extends Thread {
         }
     }
 
-    synchronized public static String gen(String str, int array[], int len, int numThread) {
+    synchronized public static String gen(String str, int[] array, int len, int numThread) {
         if(i < len) {
-            array[i] = (int)(Math.random()*len);
+            array[i] = (int)(Math.random()*1000);
             str = String.join("\n", str, Integer.toString(numThread));
-            str = String.join(" ", str, Integer.toString(i));
-            str = String.join(" ", str, Integer.toString(array[i]));
+            str = String.join(" ", str, String.format("%d", i));
+            str = String.join(" ", str, (String.format("%3d", array[i]) + ") "));
             i++;
         }
 
