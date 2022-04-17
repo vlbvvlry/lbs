@@ -1,20 +1,27 @@
 package com.arragen;
 
-import java.util.Arrays;
 import java.io.*;
+import java.text.NumberFormat;
+import java.text.ParseException;
 
 public class Main {
 
-    public static void writeToFile(int[] array, FileOutputStream fos) {
+    public static final int lot = 1000;
+    public static int[] array = null;
+    private static final File f = new File("result.txt");
+    private static final File setFile = new File("set.txt");
+    private static FileOutputStream fos = null;
+    private static FileInputStream fin = null;
+
+    public static void printToFile(String str) {
         try {
-            fos.write("\n".getBytes());
-            fos.write(Arrays.toString(array).getBytes());
+            fos.write(str.getBytes());
         } catch(IOException e) {
             System.out.println(e.getMessage());
         }
     }
 
-    public static int[] sortTest(int[] array, int threadsCount, int sort) {
+    public static int[] sortTest(int threadsCount, int sort) {
         SortingThread[] st = new SortingThread[threadsCount];
         int[] _array = array.clone();
         long time = System.nanoTime();
@@ -23,48 +30,52 @@ public class Main {
             st[i].start();
         }
         try{
-            st[threadsCount - 1].join();
+            for(int i = 0; i < threadsCount; i++) {
+                st[i].join();
+            }
         } catch(Exception e) {
             System.out.println(e.getMessage());
         }
         mergeSort(_array, _array.length);
         time = System.nanoTime() - time;
         time /= 1000000;
-        System.out.println("Sort " + sort + " -> " + time);
-
+        System.out.println("Sort " + sort + " -> " +
+                String.format("%5d",time) + "   (" +
+                threadsCount + " threads)");
         return _array;
     }
 
-    public static void genTestWithoutSyn(int[] array, int threadsCount, FileOutputStream fos) {
+    public static void genTestWithoutSyn(int threadsCount) {
         GenerateThreadWithoutSyn[] gtws = new GenerateThreadWithoutSyn[threadsCount];
         for(int i = 0; i < threadsCount; i++) {
-            gtws[i] = new GenerateThreadWithoutSyn(array, fos, i+1, threadsCount);
+            gtws[i] = new GenerateThreadWithoutSyn(i+1, threadsCount);
             gtws[i].start();
         }
-
         try {
-            gtws[threadsCount - 1].join();
+            for(int i = 0; i < threadsCount; i++) {
+                gtws[i].join();
+            }
         } catch(Exception e) {
             System.out.println(e.getMessage());
         }
     }
 
-    public static void genTestSyn(int[] array, int threadsCount, FileOutputStream fos) {
+    public static void genTestSyn(int threadsCount) {
         GenerateThread[] gt = new GenerateThread[threadsCount];
         for(int i = 0; i < threadsCount; i++) {
-            gt[i] = new GenerateThread(array, fos, i+1);
+            gt[i] = new GenerateThread(i+1, threadsCount);
             gt[i].start();
         }
-
         try {
-            gt[threadsCount - 1].join();
+            for(int i = 0; i < threadsCount; i++) {
+                gt[i].join();
+            }
         } catch(Exception e) {
             System.out.println(e.getMessage());
         }
     }
 
-    public static void merge(
-            int[] a, int[] l, int[] r, int left, int right) {
+    public static void merge(int[] a, int[] l, int[] r, int left, int right) {
 
         int i = 0, j = 0, k = 0;
         while (i < left && j < right) {
@@ -103,35 +114,72 @@ public class Main {
         merge(a, l, r, mid, n - mid);
     }
 
-    public static void main(String[] args) {
-        int threadsCount = 4;
-        int[] array = new int[5000];
-        File genFile = new File("result.txt");
-        FileOutputStream fosGenFile = null;
-
+    private static void creatingFileAttributes() {
         try {
-            genFile.createNewFile();
-            (new FileOutputStream(genFile, false)).write("".getBytes());
-            fosGenFile = new FileOutputStream(genFile, true);
+            if(f.createNewFile()) {
+                System.out.println("File \"result.txt\" created.");
+            }
+            fin = new FileInputStream(setFile);
+            fos = new FileOutputStream(f, true);
+            (new FileOutputStream(f, false)).write("".getBytes());
         } catch(IOException e) {
             System.out.println(e.getMessage());
         }
-
-        //genTestSyn(array, threadsCount, fosGenFile);
-        genTestWithoutSyn(array, threadsCount, fosGenFile);
-
-
-        try {        
-            fosGenFile.write("\n\nShakerSort".getBytes());
-            writeToFile(sortTest(array, threadsCount, 1), fosGenFile);
-            fosGenFile.write("\n\nInsertionSort".getBytes());
-            writeToFile(sortTest(array, threadsCount, 2), fosGenFile);
-            fosGenFile.write("\n\nCombSort".getBytes());       
-            writeToFile(sortTest(array, threadsCount, 3), fosGenFile);
-        } catch(IOException e) {
-            System.out.println(e.getMessage());
-        }
-
     }
-    
+
+    private static String readFile() {
+        String str = "";
+        try {
+            int i = -1;
+            while((i = fin.read()) != -1) {
+                str = String.join("", str, String.format("%c",(char)i));
+            }
+        } catch(IOException e) {
+            System.out.println(e.getMessage());
+        }
+        return str;
+    }
+
+    private static int strToInt(String str) {
+        int i = 0;
+        try {
+            NumberFormat nf = NumberFormat.getInstance();
+            i = nf.parse(str).intValue();
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
+        return i;
+    }
+
+    public static void main(String[] args) {
+        creatingFileAttributes();
+
+        String[] settings = readFile().split("\n");
+        int size = strToInt(settings[0]);
+        int threadsCount = strToInt(settings[1]);
+        int CS = strToInt(settings[2]);
+        array = new int[size];
+
+        if(CS == 0) {
+            System.out.print("Without critical section: \n");
+        } else {
+            System.out.print("With critical section: \n");
+        }
+        for(int i = 1; i < (threadsCount + 1); i+=i) {
+            creatingFileAttributes();
+            System.out.println();
+            if(CS == 0) {
+                genTestWithoutSyn(i);
+            } else {
+                genTestSyn(i);
+            }
+        }
+        for(int i = 1; i < 4; i++) {
+            System.out.println();
+            for(int j = 1; j < 9; j+=j) {
+                sortTest(j,i);
+            }
+        }
+    }
+
 }

@@ -4,20 +4,18 @@ public class SortThread extends Thread {
 
     private final int[] _array;
     private final int n_sort;
-    //private final int threadNum;
     private final int left;
-    private final int rigth;
+    private final int right;
 
     SortThread(int[] _array, int n_sort, int threadNum, int threadCount) {
         this._array = _array;
         this.n_sort = n_sort;
-        //this.threadNum = threadNum;
         this.left = _array.length/threadCount*(threadNum-1);
-        if(threadNum == threadCount) {
-            this.rigth = _array.length;
-            return;
-        }
-        this.rigth = _array.length/threadCount*threadNum;
+//        if(threadNum == threadCount) {
+//            this.right = _array.length;
+//            return;
+//        }
+        this.right = _array.length/threadCount*threadNum;
     }
 
     public void Swap(int i) {
@@ -27,8 +25,7 @@ public class SortThread extends Thread {
     }
 
     public void InsertionSort() {
-        for (int i = left; i < rigth; i++) {
-            //insSortStepping(_array, i);
+        for (int i = left; i < right; i++) {
             int current = _array[i];
             int j = i - 1;
             while(j >= left && current < _array[j]) {
@@ -42,7 +39,7 @@ public class SortThread extends Thread {
     public void ShakerSort() {
         int L, R;
         L = left;
-        R = rigth - 1;
+        R = right - 1;
         while(L <= R) {
             for (int i = R; i > L; i--) {
                 if (_array[i] < _array[i - 1]) {
@@ -60,13 +57,13 @@ public class SortThread extends Thread {
     }
 
     public void CombSort() {
-        int step = rigth;
+        int step = right;
         boolean swapped = true;
         while (step > 1 || swapped) {
             swapped = false;
             if (step > 1)
                 step = (int) (step / 1.247);
-            for (int i = left; i + step < rigth; i++) {
+            for (int i = left; i + step < right; i++) {
                 if (_array[i] > _array[i + step]) {
                     Swap(i);
                     swapped = true;

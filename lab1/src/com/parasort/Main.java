@@ -6,20 +6,16 @@ import java.io.*;
 public class Main {
 
     private static final File f = new File("result.txt");
+    private static final File setFile = new File("set.txt");
     private static FileOutputStream fos = null;
+    private static FileInputStream fin = null;
 
-    public static void Filling(int[] _array, int _lot) {
+    public static void filling(int[] _array, int _lot) {
         for (int i = 0; i < _array.length; i++)
             _array[i] = (int) (Math.random()*_lot);
     }
 
-//    public static void merging(int _array, int threads) {
-//        //
-//
-//    }
-
-    public static void merge(
-            int[] a, int[] l, int[] r, int left, int right) {
+    public static void merge(int[] a, int[] l, int[] r, int left, int right) {
 
         int i = 0, j = 0, k = 0;
         while (i < left && j < right) {
@@ -58,7 +54,7 @@ public class Main {
         merge(a, l, r, mid, n - mid);
     }
 
-    public static void Test(int[] _array, int threads, int sort) {
+    public static void test(int[] _array, int threads, int sort) {
         SortThread[] st = new SortThread[threads];
         int[] clone_array = _array.clone();
         long time = System.nanoTime();
@@ -67,9 +63,11 @@ public class Main {
             st[i].start();
         }
         try {
-            st[threads - 1].join();
+            for(int i = 0; i < threads; i++) {
+                st[i].join();
+            }
         } catch(InterruptedException e) {
-            System.out.println("Something's wrong..");
+            System.out.println(e.getMessage());
         }
         mergeSort(clone_array, clone_array.length);
         time = System.nanoTime() - time;
@@ -82,13 +80,27 @@ public class Main {
     private static void creatingFileAttributes() {
         try {
             if(f.createNewFile()) {
-                System.out.println("File created.");
+                System.out.println("File \"result.txt\" created.");
             }
+            fin = new FileInputStream(setFile);
             fos = new FileOutputStream(f, true);
             (new FileOutputStream(f, false)).write("".getBytes());
         } catch(IOException e) {
             System.out.println(e.getMessage());
         }
+    }
+
+    private static String readFile(FileInputStream fin) {
+        String str = "";
+        try {
+            int i = -1;
+            while((i = fin.read()) != -1) {
+                str = String.join("", str, String.format("%c",(char)i));
+            }
+        } catch(IOException e) {
+            System.out.println(e.getMessage());
+        }
+        return str;
     }
 
     private static void printToFile(String str) {
@@ -102,27 +114,29 @@ public class Main {
     public static void main(String[] args) {
         creatingFileAttributes();
 
-        int[] _arr25k = new int[50000];
-        Filling(_arr25k, _arr25k.length);
-        printToFile("Source Array: \n" + Arrays.toString(_arr25k));
+        int size = Integer.parseInt(readFile(fin));
+        int[] _array = new int[size];
+        filling(_array, 1000);
+        printToFile("Source Array: \n" + Arrays.toString(_array));
+        printToFile("\n\nClone Array: \n" + Arrays.toString(_array.clone()));
 
         printToFile("\n\nShakerSort:\n");
-        Test(_arr25k, 1, 1);
-        Test(_arr25k, 2, 1);
-        Test(_arr25k, 4, 1);
-        Test(_arr25k, 8, 1);
+        test(_array, 1, 1);
+        test(_array, 2, 1);
+        test(_array, 4, 1);
+        test(_array, 8, 1);
 
         printToFile("\n\nInsertionSort:\n");
-        Test(_arr25k, 1, 2);
-        Test(_arr25k, 2, 2);
-        Test(_arr25k, 4, 2);
-        Test(_arr25k, 8, 2);
+        test(_array, 1, 2);
+        test(_array, 2, 2);
+        test(_array, 4, 2);
+        test(_array, 8, 2);
 
         printToFile("\n\nCombSort:\n");
-        Test(_arr25k, 1, 3);
-        Test(_arr25k, 2, 3);
-        Test(_arr25k, 4, 3);
-        Test(_arr25k, 8, 3);
+        test(_array, 1, 3);
+        test(_array, 2, 3);
+        test(_array, 4, 3);
+        test(_array, 8, 3);
     }
  
 }
