@@ -3,7 +3,7 @@ import java.util.*;
 
 public class Main {
 
-    public static final int N = 35000;
+    public static final int N = 50000;
     public static final int threadCount = 2;
     public static byte[] vector = new byte[N];
     public static byte[][] matrix = new byte[N][N];
